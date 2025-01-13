@@ -18,6 +18,4 @@ updates:
     commit-message:
       prefix: "⬆️ "
       include: "scope"
-    reviewers:
-      - "owner"
     versioning-strategy: "increase"
