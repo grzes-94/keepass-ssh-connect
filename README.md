@@ -55,3 +55,18 @@ python server_connect.py
 - pykeepass: KeePass database handling
 - python-dotenv: Environment variable management
 - colorama: Colored terminal output
+
+## Testing
+
+Run the tests using pytest:
+```bash
+python -m pytest tests/ -v
+```
+
+The test suite covers:
+- KeePass database operations
+- Server listing and selection
+- SSH connection handling
+- Error scenarios
+
+Tests are automatically run on pull requests via GitHub Actions.

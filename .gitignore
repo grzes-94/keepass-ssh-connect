@@ -1,2 +1,3 @@
 *.kdbx
 *.keyx
+__pycache__
