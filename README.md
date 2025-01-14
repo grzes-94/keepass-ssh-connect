@@ -1,5 +1,9 @@
 # KeePass SSH Connection Manager
 
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/grzes-94/keepass-ssh-connect/test.yml?label=Tests)](https://github.com/grzes-94/keepass-ssh-connect/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/grzes-94/keepass-ssh-connect)](https://codecov.io/gh/grzes-94/keepass-ssh-connect)
+[![GitHub License](https://img.shields.io/github/license/grzes-94/keepass-ssh-connect)](https://github.com/grzes-94/keepass-ssh-connect/blob/master/LICENSE)
+
 A Python utility that helps you securely connect to SSH servers using credentials stored in a KeePass database. This tool provides a convenient way to manage and use your server credentials while keeping them secure.
 
 ## Features
@@ -63,10 +67,6 @@ The script will:
 1. Load entries from the specified group (if KEEPASS_GROUP_PATH is set) or all entries
 2. Display available servers with their details
 3. Connect to the selected server using SSH
-
-## Status
-![Tests](https://github.com/grzes-94/keepass-sb/actions/workflows/test.yml/badge.svg)
-[![codecov](https://codecov.io/gh/grzes-94/keepass-sb/branch/master/graph/badge.svg)](https://codecov.io/gh/grzes-94/keepass-sb)
 
 ## Usage
 
