@@ -66,7 +66,7 @@ The script will:
 
 ## Status
 ![Tests](https://github.com/grzes-94/keepass-sb/actions/workflows/test.yml/badge.svg)
-[![codecov](https://codecov.io/gh/grzes-94/keepass-sb/branch/main/graph/badge.svg)](https://codecov.io/gh/grzes-94/keepass-sb)
+[![codecov](https://codecov.io/gh/grzes-94/keepass-sb/branch/master/graph/badge.svg)](https://codecov.io/gh/grzes-94/keepass-sb)
 
 ## Usage
 
