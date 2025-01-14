@@ -24,30 +24,70 @@ def load_keepass_db(db_path: str, key_path: str = None) -> PyKeePass:
         print(f"Error opening KeePass database: {e}")
         sys.exit(1)
 
-def get_server_entries(kp: PyKeePass) -> List[Dict]:
+def parse_server_url(url: str) -> tuple[str, int]:
     """
-    Get all server entries from the database
+    Parse server URL to extract hostname and port.
+    If port is not specified, returns default port 22.
     """
+    if ':' in url:
+        hostname, port = url.split(':', 1)
+        return hostname, int(port)
+    return url, 22
+
+def get_server_entries(db: PyKeePass, group_path: str = None) -> list[dict]:
+    """
+    Get server entries from the KeePass database.
+    Args:
+        db: PyKeePass database instance
+        group_path: Path to group or special values:
+            - None: return entries from all groups
+            - "root": return only root-level entries (no group)
+            - "path/to/group": return entries from specific group
+    """
+    entries = []
+    if group_path == "root":
+        # Get only root-level entries (entries without a group)
+        entries = [e for e in db.entries if e.group == db.root_group]
+    elif group_path:
+        # Get entries from specific group
+        group = db.find_groups(path=group_path, first=True)
+        if not group:
+            print(f"Group {group_path} not found")
+            sys.exit(1)
+        entries = group.entries
+    else:
+        # Get all entries
+        entries = db.entries
+
     servers = []
-    for entry in kp.entries:
-        servers.append({
-            'title': entry.title,
-            'username': entry.username,
-            'password': entry.password,
-            'url': entry.url,
-            'description': entry.notes or 'No description available'
-        })
+    for entry in entries:
+        if entry.url:  # Only process entries with URLs
+            hostname, port = parse_server_url(entry.url)
+            servers.append({
+                "title": entry.title,
+                "username": entry.username,
+                "password": entry.password,
+                "url": entry.url,
+                "hostname": hostname,
+                "port": port,
+                "description": entry.notes or ""
+            })
     return servers
 
 def list_servers(servers: List[Dict]) -> None:
     """
     Display available servers with colors
     """
+    if not servers:
+        print(Fore.YELLOW + "No servers found." + Style.RESET_ALL)
+        return
+
     print("\nAvailable servers:")
     for idx, server in enumerate(servers, 1):
+        description = server['description'] if server['description'] else 'No description available'
         print(f"{Fore.GREEN}[{idx}]{Style.RESET_ALL} {Fore.CYAN}{server['title']}{Style.RESET_ALL} - "
               f"{Fore.YELLOW}{server['url']}{Style.RESET_ALL} - "
-              f"{Fore.WHITE}{server['description']}{Style.RESET_ALL}")
+              f"{Fore.WHITE}{description}{Style.RESET_ALL}")
 
 def select_server(servers: List[Dict]) -> Dict:
     """
@@ -84,6 +124,7 @@ def main():
     # Get paths from environment variables
     db_path = os.getenv('KEEPASS_DB_PATH')
     key_path = os.getenv('KEEPASS_KEY_PATH')
+    group_path = os.getenv('KEEPASS_GROUP_PATH')
 
     if not db_path:
         print("Error: KeePass database path not provided in .env file or command line")
@@ -101,7 +142,7 @@ def main():
     kp = load_keepass_db(db_path, key_path)
 
     # Get and list servers
-    servers = get_server_entries(kp)
+    servers = get_server_entries(kp, group_path)
     
     if not servers:
         print("No server entries found in the database.")
@@ -115,8 +156,7 @@ def main():
     print(f"URL: {selected_server['url']}")
     print(f"Description: {selected_server['description']}")
     
-    hostname, port = selected_server['url'].split(':')
-    connect_to_server(hostname, selected_server['username'], selected_server['password'], int(port))
+    connect_to_server(selected_server['hostname'], selected_server['username'], selected_server['password'], selected_server['port'])
 
 if __name__ == "__main__":
     main()
