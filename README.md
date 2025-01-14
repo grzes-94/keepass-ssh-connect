@@ -64,6 +64,10 @@ The script will:
 2. Display available servers with their details
 3. Connect to the selected server using SSH
 
+## Status
+![Tests](https://github.com/grzes-94/keepass-sb/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/grzes-94/keepass-sb/branch/main/graph/badge.svg)](https://codecov.io/gh/grzes-94/keepass-sb)
+
 ## Usage
 
 Run the script:
@@ -86,15 +90,30 @@ python server_connect.py
 
 ## Testing
 
-Run the tests using pytest:
+The project uses pytest for testing. To run the tests locally:
+
+1. Run all tests with coverage and reports:
 ```bash
-python -m pytest tests/ -v
+pytest
+```
+This will:
+- Run all tests
+- Generate an HTML test report (`report.html`)
+- Generate a coverage report (`htmlcov/index.html`)
+- Show test results in the terminal
+
+2. Run tests with more detailed output:
+```bash
+pytest -v
 ```
 
-The test suite covers:
-- KeePass database operations
-- Server listing and selection
-- SSH connection handling
-- Error scenarios
+3. Show coverage in terminal:
+```bash
+pytest --cov=keepass_ssh --cov-report=term-missing
+```
 
-Tests are automatically run on pull requests via GitHub Actions.
+Test configuration is stored in `pytest.ini`, and the following reports are generated:
+- `report.html`: Detailed test results
+- `htmlcov/index.html`: Code coverage report with line-by-line analysis
+
+Note: Test reports are excluded from git tracking and can be found in your local directory after running the tests.

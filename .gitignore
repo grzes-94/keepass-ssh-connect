@@ -46,12 +46,17 @@ ENV/
 
 # Testing
 .pytest_cache/
-.coverage
-htmlcov/
-.tox/
 nosetests.xml
-coverage.xml
 
 # Misc
 .DS_Store
 Thumbs.db
+
+# Test reports
+report.html
+htmlcov/
+.coverage
+coverage.xml
+test-results/
+junit/
+assets/

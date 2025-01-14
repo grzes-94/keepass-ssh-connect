@@ -1,0 +1,18 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Python files
+*.py text diff=python
+
+# Text files
+*.md text
+*.txt text
+*.yml text
+*.yaml text
+*.ini text
+*.env text
+
+# Binary files
+*.kdbx binary
+*.keyx binary
+*.key binary
