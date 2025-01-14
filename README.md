@@ -36,6 +36,34 @@ A Python utility that helps you securely connect to SSH servers using credential
    - Password: SSH password
    - URL: hostname:port (e.g., server.example.com:22)
 
+## Configuration
+
+Create a `.env` file with the following variables:
+```
+KEEPASS_DB_PATH=/path/to/your/database.kdbx
+KEEPASS_KEY_PATH=/path/to/your/key.keyx
+KEEPASS_GROUP_PATH=Root/Servers/Production  # Optional: filter entries by group
+```
+
+The `KEEPASS_GROUP_PATH` variable can be:
+- Not set: show all entries
+- A group path: show only entries from that group (e.g., "Root/Servers/Production")
+- "root": show only entries without a group (root-level entries)
+
+## Server Entry Format
+
+Server entries in the KeePass database should have:
+- Title: Server name
+- Username: SSH username
+- Password: SSH password
+- URL: Server hostname with optional port (e.g., "example.com:2222" or just "example.com" for default port 22)
+- Notes: Server description (optional)
+
+The script will:
+1. Load entries from the specified group (if KEEPASS_GROUP_PATH is set) or all entries
+2. Display available servers with their details
+3. Connect to the selected server using SSH
+
 ## Usage
 
 Run the script:
