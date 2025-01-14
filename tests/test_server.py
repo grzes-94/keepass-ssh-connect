@@ -49,23 +49,37 @@ def test_from_keepass_entry():
 
 def test_list_servers(capsys, server_entry):
     """Test server listing output."""
-    ServerManager.list_servers([server_entry])
+    # Create a list of server entries
+    servers = [server_entry]
+    
+    # Call list_servers method
+    ServerManager.list_servers(servers)
+    
+    # Capture the output
     captured = capsys.readouterr()
-    assert server_entry.title in captured.out
-    assert server_entry.url in captured.out
-    assert server_entry.description in captured.out
+    
+    # Check if the output contains expected information
+    output_line = captured.out.strip()
+    assert "1." in output_line
+    assert "Test Server" in output_line
+    assert "test_user@test.server.com:22" in output_line
+    assert "Test server description" in output_line
 
 def test_select_server_valid(server_entry):
     """Test valid server selection."""
     servers = [server_entry]
+    
+    # Test selecting first server
     selected = ServerManager.select_server(servers, "1")
     assert selected == server_entry
 
 def test_select_server_invalid(server_entry):
     """Test invalid server selection."""
     servers = [server_entry]
-    # Test invalid index
+    
+    # Test out-of-range selection
     assert ServerManager.select_server(servers, "0") is None
     assert ServerManager.select_server(servers, "2") is None
-    # Test invalid input
+    
+    # Test non-integer selection
     assert ServerManager.select_server(servers, "invalid") is None

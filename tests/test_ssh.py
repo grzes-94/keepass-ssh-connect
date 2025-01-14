@@ -1,4 +1,5 @@
 """Tests for SSH module."""
+import os
 import pytest
 from unittest.mock import patch
 from subprocess import CalledProcessError
@@ -18,12 +19,53 @@ def server_entry():
         description="Test server description"
     )
 
-def test_ssh_connect_success(server_entry):
-    """Test successful SSH connection."""
+def test_ssh_connect_posix(server_entry, monkeypatch):
+    """Test SSH connection on POSIX systems."""
+    monkeypatch.setattr(os, 'name', 'posix')
+    
     with patch('subprocess.run') as mock_run:
         SSHConnector.connect(server_entry)
         mock_run.assert_called_once_with(
-            ['ssh', '-p', '22', 'test_user@test.server.com'],
+            f'sshpass -p "{server_entry.password}" ssh -p {server_entry.port} {server_entry.username}@{server_entry.hostname}', 
+            shell=True, 
+            check=True
+        )
+
+def test_ssh_connect_windows(server_entry, monkeypatch):
+    """Test SSH connection on Windows."""
+    monkeypatch.setattr(os, 'name', 'nt')
+    
+    with patch('subprocess.run') as mock_run:
+        SSHConnector.connect(server_entry)
+        mock_run.assert_called_once_with(
+            f'plink -ssh -P {server_entry.port} {server_entry.username}@{server_entry.hostname} -pw "{server_entry.password}"', 
+            shell=True, 
+            check=True
+        )
+
+def test_ssh_connect_no_password(server_entry, monkeypatch):
+    """Test SSH connection without password."""
+    server_entry.password = ''
+    
+    with patch('subprocess.run') as mock_run:
+        # Test POSIX case
+        monkeypatch.setattr(os, 'name', 'posix')
+        SSHConnector.connect(server_entry)
+        mock_run.assert_called_once_with(
+            f'ssh -p {server_entry.port} {server_entry.username}@{server_entry.hostname}', 
+            shell=True, 
+            check=True
+        )
+        
+        # Reset mock
+        mock_run.reset_mock()
+        
+        # Test Windows case
+        monkeypatch.setattr(os, 'name', 'nt')
+        SSHConnector.connect(server_entry)
+        mock_run.assert_called_once_with(
+            f'plink -ssh -P {server_entry.port} {server_entry.username}@{server_entry.hostname}', 
+            shell=True, 
             check=True
         )
 

@@ -43,13 +43,19 @@ class ServerManager:
     
     @staticmethod
     def list_servers(servers: List[ServerEntry]) -> None:
-        """Display server list with colors."""
+        """Display server list in a compact, one-line format."""
         for i, server in enumerate(servers, 1):
-            print(f"{i}. {Fore.GREEN}{server.title}{Style.RESET_ALL}")
-            print(f"   URL: {Fore.BLUE}{server.url}{Style.RESET_ALL}")
+            # Construct a single line with key server details
+            server_info = (
+                f"{i}. {Fore.GREEN}{server.title}{Style.RESET_ALL} | "
+                f"{Fore.BLUE}{server.username}@{server.hostname}:{server.port}{Style.RESET_ALL}"
+            )
+            
+            # Add description if available
             if server.description:
-                print(f"   Description: {Fore.YELLOW}{server.description}{Style.RESET_ALL}")
-            print()
+                server_info += f" | {Fore.YELLOW}{server.description}{Style.RESET_ALL}"
+            
+            print(server_info)
     
     @staticmethod
     def select_server(servers: List[ServerEntry], selection: str) -> Optional[ServerEntry]:
