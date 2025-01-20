@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "keepass-ssh-connect"
+version = "0.1.0"
+description = "A Python utility that helps you securely connect to SSH servers using credentials stored in a KeePass database"
+authors = ["Grzes-94"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "keepass_ssh"}]
+repository = "https://github.com/grzes-94/keepass-ssh-connect"
+keywords = ["keepass", "ssh", "connection", "security"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: System :: Networking"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+pykeepass = "^4.1.0"
+paramiko = "^3.0.0"
+python-dotenv = "^1.0.0"
+colorama = "^0.4.6"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-html = "^4.1.1"
+
+[tool.poetry.scripts]
+keepass-ssh-connect = "keepass_ssh.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=keepass_ssh --html=test-results/report.html --self-contained-html"
+
+[tool.coverage.run]
+source = ["keepass_ssh"]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/grzes-94/keepass-ssh-connect/issues"

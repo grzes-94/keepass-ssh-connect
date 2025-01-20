@@ -1,4 +1,4 @@
-# KeePass SSH Connection Manager
+# KeePass SSH Connect
 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/grzes-94/keepass-ssh-connect/test.yml?label=Tests)](https://github.com/grzes-94/keepass-ssh-connect/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/grzes-94/keepass-ssh-connect)](https://codecov.io/gh/grzes-94/keepass-ssh-connect)
@@ -8,112 +8,116 @@ A Python utility that helps you securely connect to SSH servers using credential
 
 ## Features
 
-- Load server credentials from KeePass database
-- Support for KeePass key file authentication
-- Interactive server selection
-- Secure SSH connection handling
-- Command-line interface for server interaction
+- 🔐 Securely store SSH server credentials in KeePass
+- 🚀 Easy command-line interface for server connections
+- 🔍 Flexible server filtering and selection
+- 📋 List and manage server entries
+- 🔑 Support for key files and environment variables
+
+## Installation
+
+Install using pip:
+
+```bash
+pip install keepass-ssh-connect
+```
 
 ## Prerequisites
 
-- Python 3.x
-- KeePass database with server credentials
-- Required Python packages (see requirements.txt)
-- For Windows: PuTTY installed (make sure plink.exe is in your system PATH)
-- For Unix-like systems: sshpass installed (e.g., `apt-get install sshpass` on Debian/Ubuntu)
-
-## Setup
-
-1. Clone the repository
-2. Install the required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Update the provided `.env` file with your database paths:
-   ```
-   KEEPASS_DB_PATH=your_database.kdbx
-   KEEPASS_KEY_PATH=your_keyfile.keyx  # Optional
-   ```
-4. Add your server credentials to KeePass with the following format:
-   - Title: Server name
-   - Username: SSH username
-   - Password: SSH password
-   - URL: hostname:port (e.g., server.example.com:22)
-
-## Configuration
-
-Create a `.env` file with the following variables:
-```
-KEEPASS_DB_PATH=/path/to/your/database.kdbx
-KEEPASS_KEY_PATH=/path/to/your/key.keyx
-KEEPASS_GROUP_PATH=Root/Servers/Production  # Optional: filter entries by group
-```
-
-The `KEEPASS_GROUP_PATH` variable can be:
-- Not set: show all entries
-- A group path: show only entries from that group (e.g., "Root/Servers/Production")
-- "root": show only entries without a group (root-level entries)
-
-## Server Entry Format
-
-Server entries in the KeePass database should have:
-- Title: Server name
-- Username: SSH username
-- Password: SSH password
-- URL: Server hostname with optional port (e.g., "example.com:2222" or just "example.com" for default port 22)
-- Notes: Server description (optional)
-
-The script will:
-1. Load entries from the specified group (if KEEPASS_GROUP_PATH is set) or all entries
-2. Display available servers with their details
-3. Connect to the selected server using SSH
+- Python 3.8+
+- KeePass database with SSH server entries
+- Required Python packages (installed automatically):
+  - pykeepass
+  - paramiko
+  - python-dotenv
+  - colorama
 
 ## Usage
 
-Run the script:
+### Basic Usage
+
 ```bash
-python server_connect.py
+# List all servers
+keepass-ssh-connect -l
+
+# Connect to a specific server
+keepass-ssh-connect -s "production"
+
+# Specify database and group
+keepass-ssh-connect -d /path/to/database.kdbx -g "/Servers/Production"
 ```
 
-1. The script will display available servers from your KeePass database
-2. Select a server by entering its number
-3. The script will establish an SSH connection
-4. Enter commands to execute on the server
-5. Type 'exit' to close the connection
+### Full CLI Options
 
-
-## Dependencies
-
-- pykeepass: KeePass database handling
-- python-dotenv: Environment variable management
-- colorama: Colored terminal output
-
-## Testing
-
-The project uses pytest for testing. To run the tests locally:
-
-1. Run all tests with coverage and reports:
-```bash
-pytest
 ```
-This will:
-- Run all tests
-- Generate an HTML test report (`report.html`)
-- Generate a coverage report (`htmlcov/index.html`)
-- Show test results in the terminal
+usage: keepass-ssh-connect [-h] [-d DATABASE] [-k KEY_FILE] [-g GROUP] 
+                            [-s SERVER] [-l] [-v]
 
-2. Run tests with more detailed output:
-```bash
-pytest -v
+KeePass SSH Connection Utility
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DATABASE, --database DATABASE
+                        Path to the KeePass database file
+  -k KEY_FILE, --key-file KEY_FILE
+                        Path to the KeePass key file (optional)
+  -g GROUP, --group GROUP
+                        KeePass group path to filter server entries
+  -s SERVER, --server SERVER
+                        Specific server name or partial match to connect to
+  -l, --list            List available servers without connecting
+  -v, --verbose         Enable verbose output
 ```
 
-3. Show coverage in terminal:
+## Environment Variables
+
+You can also use environment variables for default settings:
+
+- `KEEPASS_DB_PATH`: Path to the KeePass database
+- `KEEPASS_KEY_PATH`: Path to the key file
+- `KEEPASS_GROUP_PATH`: Default group path for server entries
+
+## Local File Discovery
+
+If no database path is specified through command-line parameters or environment variables, the utility will automatically search the current directory for KeePass files:
+
+- It looks for `.kdbx` files for the database
+- It looks for `.keyx` files for the key file
+
+When local files are discovered, the utility will print the paths of the files being used, helping you understand which files are being automatically selected.
+
+### Example
+
 ```bash
-pytest --cov=keepass_ssh --cov-report=term-missing
+# If you have 'mypasswords.kdbx' and 'mykey.keyx' in the current directory
+keepass-ssh-connect
+# This will print:
+# Using local database file: mypasswords.kdbx
+# Using local key file: mykey.keyx
 ```
 
-Test configuration is stored in `pytest.ini`, and the following reports are generated:
-- `report.html`: Detailed test results
-- `htmlcov/index.html`: Code coverage report with line-by-line analysis
+**Note**: Local file discovery provides convenience but should be used carefully to avoid unintended file selection.
 
-Note: Test reports are excluded from git tracking and can be found in your local directory after running the tests.
+## Configuration in KeePass
+
+1. Create a group for SSH servers
+2. For each server, add an entry with:
+   - Title: Server name
+   - Username: SSH username
+   - Password: SSH password
+   - URL: Server hostname or IP
+   - Notes: Additional connection details
+
+## Security
+
+- Credentials are never stored in plain text
+- Supports KeePass key files for additional security
+- Uses environment variables to avoid hardcoding sensitive information
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/grzes-94/keepass-ssh-connect/blob/master/LICENSE) file for details.
+
+## Author
+
+[Grzes-94](https://github.com/grzes-94)
