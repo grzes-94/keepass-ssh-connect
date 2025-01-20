@@ -1,6 +1,6 @@
-import pytest
-import sys
 import os
+import sys
+import pytest
 from unittest.mock import patch, MagicMock
 import argparse
 
@@ -287,3 +287,94 @@ class TestMainModule:
         with patch('sys.argv', ['keepass-ssh-connect']):
             args = cli_instance.parse_arguments()
             assert args.group == 'Custom/Group'
+
+    def test_parse_arguments_invalid_args(self):
+        """
+        Test parsing arguments with invalid combinations.
+        """
+        # Simulate invalid argument combination
+        with patch('sys.argv', ['keepass-ssh-connect', '-l', '-s', 'server']), \
+             patch('glob.glob', return_value=['Passwords.kdbx', 'server-key.keyx']):
+            cli = KeePassSSHCLI()
+            args = cli.parse_arguments()
+            assert args.list
+            assert args.server == 'server'
+            assert args.database == 'Passwords.kdbx'
+
+    def test_parse_arguments_no_args(self):
+        """
+        Test parsing arguments when no arguments are provided.
+        """
+        # Modify to simulate no environment variables and local files exist
+        with patch('os.environ', {}), \
+             patch('sys.argv', ['keepass-ssh-connect']), \
+             patch('glob.glob', side_effect=[['Passwords.kdbx'], ['server-key.keyx']]):
+            cli = KeePassSSHCLI()
+            args = cli.parse_arguments()
+            assert not args.list
+            assert not args.server
+            assert args.database == 'Passwords.kdbx'
+            assert args.key_file == 'server-key.keyx'
+            assert args.group == 'root'
+
+    def test_filter_servers_exact_match(self):
+        """
+        Test server filtering with an exact match.
+        """
+        cli = KeePassSSHCLI()
+        servers = [
+            ServerEntry(title='production-server', username='user1', password='pass1', hostname='host1', url='host1', port=22, description='notes1'),
+            ServerEntry(title='staging-server', username='user2', password='pass2', hostname='host2', url='host2', port=22, description='notes2')
+        ]
+        
+        filtered_servers = cli._filter_servers(servers, 'production-server')
+        assert len(filtered_servers) == 1
+        assert filtered_servers[0].title == 'production-server'
+
+    def test_filter_servers_partial_match(self):
+        """
+        Test server filtering with a partial match.
+        """
+        cli = KeePassSSHCLI()
+        servers = [
+            ServerEntry(title='web-production-server', username='user1', password='pass1', hostname='host1', url='host1', port=22, description='notes1'),
+            ServerEntry(title='web-staging-server', username='user2', password='pass2', hostname='host2', url='host2', port=22, description='notes2'),
+            ServerEntry(title='db-production-server', username='user3', password='pass3', hostname='host3', url='host3', port=22, description='notes3')
+        ]
+        
+        filtered_servers = cli._filter_servers(servers, 'production')
+        assert len(filtered_servers) == 2
+        assert all('production' in server.title for server in filtered_servers)
+
+    def test_filter_servers_case_insensitive(self):
+        """
+        Test server filtering is case-insensitive.
+        """
+        cli = KeePassSSHCLI()
+        servers = [
+            ServerEntry(title='Production-Server', username='user1', password='pass1', hostname='host1', url='host1', port=22, description='notes1'),
+            ServerEntry(title='staging-server', username='user2', password='pass2', hostname='host2', url='host2', port=22, description='notes2')
+        ]
+        
+        filtered_servers = cli._filter_servers(servers, 'production')
+        assert len(filtered_servers) == 1
+        assert filtered_servers[0].title == 'Production-Server'
+
+    def test_list_and_select_server_valid_selection(self):
+        """
+        Test interactive server selection with a valid input.
+        """
+        cli = KeePassSSHCLI()
+        servers = [
+            ServerEntry(title='Server1', username='user1', password='pass1', hostname='host1', url='host1', port=22, description='notes1'),
+            ServerEntry(title='Server2', username='user2', password='pass2', hostname='host2', url='host2', port=22, description='notes2')
+        ]
+        
+        with patch('builtins.input', return_value='1'), \
+             patch('builtins.print') as mock_print:
+            selected_server = cli._list_and_select_server(servers)
+        
+        assert selected_server == servers[0]
+        mock_print.assert_called()
+
+
